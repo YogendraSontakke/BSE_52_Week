@@ -13,10 +13,8 @@ def print_dump_array(i_array, i_input_json_name):
     ouput_file_name = "/".join(path_split[:-1]) + "/csv/" + path_split[-1] + '.csv'    
     fp = open(ouput_file_name, 'w')
     fp.write(", ".join(column_header) + '\n')
-    print ", ".join(column_header)
     for elems in i_array:        
         if elems is not None:
-            print ", ".join(elems)
             fp.write(", ".join(elems) + '\n')
     fp.close()
 
@@ -26,7 +24,18 @@ def find_elem_in_soup(soup_for_ratios, iText):
         return e.find_next_sibling().text    
     return None
 
+def debug_dump(error_text, i_company_info):
+    debug = True
+    if True == debug:
+        fp = open("E:/GitHub/BSENSE/bse/log/error.log", 'a')        
+        fp.write( error_text +"\t" + " ".join(i_company_info) + "\n" )
+        fp.close()
+        fp2 = open("E:/GitHub/BSENSE/bse/log/failure.json", 'a')    
+        json.dump(i_company_info, fp2)        
+        fp2.close()
+    
 def get_mc(i_company_info):
+    
     url = 'http://www.moneycontrol.com/stocks/cptmarket/compsearchnew.php'
     data = {
         'search_data' : '',
@@ -42,7 +51,8 @@ def get_mc(i_company_info):
         html = gps.get_html_data(url, params=data)
     soup = BeautifulSoup(html, 'lxml')
     standalone = soup.find(attrs={'class':'home act'})
-    if standalone is None:
+    if standalone is None:    
+        debug_dump("HTML Error:- Could not get the monecontrol page. ", i_company_info)
         return None
     key_variables = standalone.a.get('href').split('/')[-2:]
     # example urls as below:
@@ -55,6 +65,7 @@ def get_mc(i_company_info):
         url_for_ratios = 'http://www.moneycontrol.com/financials/' + key_variables[0] + '/ratios/' + key_variables[1] + '#' + key_variables[1]
         html_for_ratios = gps.get_html_data(url_for_ratios)
     if html_for_ratios is None:
+        debug_dump("Ratio Error:- Could not get the ratio page. ", i_company_info)
         return None    
     soup_for_ratios = BeautifulSoup(html_for_ratios, 'html.parser')
     RoCE_text = 'Return On Capital Employed(%)'
@@ -66,7 +77,9 @@ def get_mc(i_company_info):
     RoNW = find_elem_in_soup(soup_for_ratios, RoNW_text)
     operating_profit_per_share = find_elem_in_soup(soup_for_ratios, operating_profit_per_share_text)    
     if debt_to_equity is None:
+        debug_dump("Ratio Error:- Could not get the ratio debt to equity. ", i_company_info)
         return None
+
     company_details = [i_company_info[0], i_company_info[1]] # Security Code, Market Cap
     encoding = 'ascii'
     action = 'ignore'

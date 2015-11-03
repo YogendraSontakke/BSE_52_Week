@@ -6,6 +6,7 @@ from requests import Session
 import time
 import json
 import mc
+import sys
 
 def get_security_code_vs_data_dict(i_data):
     security_codes_vs_data = {}
@@ -15,21 +16,20 @@ def get_security_code_vs_data_dict(i_data):
             security_codes_vs_data[line_data_array[0]] = line_data_array[1:]
     return security_codes_vs_data
 
-def write_output(i_sorted_security_code_vs_market_cap_and_name):
+def write_output(i_sorted_security_code_vs_market_cap_and_name, output_json_folder):
     combined_data = []
     for security, mc in i_sorted_security_code_vs_market_cap_and_name:
         line = security + ' '+ str(mc[0]).rjust(11) + ' ' + mc[1] + ' ' + mc[2]
         line_array = [security] + mc
         print line_array
-        combined_data.append(line_array)
-    json_daily_folder = 'E:/Programming/Personal/bse/bse_52_week_data/json_daily/'
-    file = json_daily_folder + str(datetime.datetime.now()).replace(':','_').replace(' ','__') + '.json'
-    fp = open(  file, 'wb')
+        combined_data.append(line_array)    
+    json_file = output_json_folder + '/' + str(datetime.datetime.now()).replace(':','_').replace(' ','__') + '.json'
+    fp = open(  json_file, 'wb')
     json.dump(combined_data,fp)
     fp.close()
-    return file
+    return json_file
     
-def main():
+def main(output_json_folder):
     data = bse.data_52_week_high()
     security_codes_vs_data = get_security_code_vs_data_dict(data)
     
@@ -46,12 +46,16 @@ def main():
         security_id_and_codes.append( (security_codes_vs_data[tup[0]][0], tup[0]))
     func = lambda x : float(x[1][0])
     sorted_security_code_vs_market_cap_and_name = sorted(security_code_vs_market_cap_and_name.items(), key=func)
-    json_file = write_output(sorted_security_code_vs_market_cap_and_name)    
+    json_file = write_output(sorted_security_code_vs_market_cap_and_name, output_json_folder)    
     mc.read_json(json_file) # creates csv
 
 if __name__ == '__main__':
+    if len(sys.argv) != 2:
+        print "Usage: get_data_for_companies.py <output_json_folder>"
+        exit(-1)
     start = datetime.datetime.now()
-    main()
+    del sys.argv[0]
+    main(sys.argv.pop())
     end = datetime.datetime.now()
     print end-start
 
