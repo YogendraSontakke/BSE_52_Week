@@ -1,6 +1,9 @@
-import requests
+#standard
 import sys
+#standard addon
+import requests
 from requests import Session
+
 def get_html_data(i_url, params={},headers={}):
     try:        
         response = requests.request('GET', i_url, params=params, headers=headers)

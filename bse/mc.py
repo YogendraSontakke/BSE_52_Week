@@ -1,11 +1,14 @@
-import get_post_services as gps
+#standard
 import sys
 import json
-from bs4 import BeautifulSoup
 from multiprocessing.dummy import Pool as ThreadPool
 from multiprocessing import Pool as ProcessPool
 import datetime
 import subprocess
+#standard addon
+from bs4 import BeautifulSoup
+#local
+import get_post_services as gps
 
 def print_dump_array(i_array, i_input_json_name):
     column_header = ['Security_Code', 'Market_Cap', 'Debt_to_Equity', 'RoCE', 'RoNW', 'Operating_Profit_per_share', 'Secutity_Id']

@@ -1,8 +1,10 @@
+#standard
 import json
 import datetime
 import os
-import mc
 import sys
+#local
+import mc
 
 def process_combine(i_combined, json_consolidated_folder):
     data_map = {}    
