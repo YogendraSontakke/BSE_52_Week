@@ -10,6 +10,11 @@ from bs4 import BeautifulSoup
 #local
 import get_post_services as gps
 
+# Debug Flags : Start
+debug = True
+single_thread = False    
+# Debug Flags : End
+
 def print_dump_array(i_array, i_input_json_name):
     column_header = ['Security_Code', 'Market_Cap', 'Debt_to_Equity', 'RoCE', 'RoNW', 'Operating_Profit_per_share', 'Secutity_Id']
     i_input_json_name = i_input_json_name.replace('\\','/')
@@ -29,14 +34,43 @@ def find_elem_in_soup(soup_for_ratios, iText):
     return None
 
 def debug_dump(error_text, i_company_info):
-    debug = True
     if True == debug:
-        fp = open("E:/GitHub/BSENSE/bse/log/error.log", 'a')        
+        fp = open("./log/error.log", 'a')        
         fp.write( error_text +"\t" + " ".join(i_company_info) + "\n" )
         fp.close()
-        fp2 = open("E:/GitHub/BSENSE/bse/log/failure.json", 'a')    
-        json.dump(i_company_info, fp2)        
-        fp2.close()
+
+def dump_url(url):
+    if True == debug:
+        fp = open('./log/link.txt','a')
+        fp.write(url + '\n')
+        fp.close()
+        
+def parse_the_ratios_page(html_for_ratios, parser):
+    soup_for_ratios = BeautifulSoup(html_for_ratios, parser)
+    RoCE_text = 'Return On Capital Employed(%)'
+    debt_to_equity_text = 'Debt Equity Ratio'
+    RoNW_text = 'Return On Net Worth(%)'
+    operating_profit_per_share_text = 'Operating Profit Per Share (Rs)'
+    debt_to_equity = find_elem_in_soup(soup_for_ratios, debt_to_equity_text)
+    RoCE = find_elem_in_soup(soup_for_ratios, RoCE_text)
+    RoNW = find_elem_in_soup(soup_for_ratios, RoNW_text)
+    operating_profit_per_share = find_elem_in_soup(soup_for_ratios, operating_profit_per_share_text)    
+    if debt_to_equity is None:        
+        return None
+    return {'debt_to_equity' : debt_to_equity, 'RoCE' : RoCE, 'RoNW' : RoNW, 'operating_profit_per_share' : operating_profit_per_share}
+
+def get_ratios(ratio_urls):
+    ratios = {}
+    for url in ratio_urls:
+        html_for_ratios = gps.get_html_data(url)
+        if html_for_ratios is None:
+            continue        
+        parsers = ['html.parser', 'lxml', 'html5lib']
+        for parser in parsers:
+            ratios = parse_the_ratios_page(html_for_ratios, parser)
+            if ratios is not None:
+                break
+    return ratios
     
 def get_mc(i_company_info):
     
@@ -62,35 +96,25 @@ def get_mc(i_company_info):
     # example urls as below:
     #   http://www.moneycontrol.com/financials/aiaengineering/ratios/AIE01#AIE01
     #   http://www.moneycontrol.com/financials/fluidomat/ratios/F02#F02  
-    #   http://www.moneycontrol.com/financials/arrowcoated/consolidated-ratios/ACP    
-    url_for_ratios_consolidated = 'http://www.moneycontrol.com/financials/' + key_variables[0] + '/consolidated-ratios/' + key_variables[1] 
-    html_for_ratios = gps.get_html_data(url_for_ratios_consolidated)
-    if html_for_ratios is None:
-        url_for_ratios = 'http://www.moneycontrol.com/financials/' + key_variables[0] + '/ratios/' + key_variables[1] + '#' + key_variables[1]
-        html_for_ratios = gps.get_html_data(url_for_ratios)
-    if html_for_ratios is None:
-        debug_dump("Ratio Error:- Could not get the ratio page. ", i_company_info)
-        return None    
-    soup_for_ratios = BeautifulSoup(html_for_ratios, 'html.parser')
-    RoCE_text = 'Return On Capital Employed(%)'
-    debt_to_equity_text = 'Debt Equity Ratio'
-    RoNW_text = 'Return On Net Worth(%)'
-    operating_profit_per_share_text = 'Operating Profit Per Share (Rs)'
-    debt_to_equity = find_elem_in_soup(soup_for_ratios, debt_to_equity_text)
-    RoCE = find_elem_in_soup(soup_for_ratios, RoCE_text)
-    RoNW = find_elem_in_soup(soup_for_ratios, RoNW_text)
-    operating_profit_per_share = find_elem_in_soup(soup_for_ratios, operating_profit_per_share_text)    
-    if debt_to_equity is None:
+    #   http://www.moneycontrol.com/financials/arrowcoated/consolidated-ratios/ACP
+    url_for_ratios_consolidated = 'http://www.moneycontrol.com/financials/' + key_variables[0] + '/consolidated-ratios/' + key_variables[1]     
+    url_for_ratios = 'http://www.moneycontrol.com/financials/' + key_variables[0] + '/ratios/' + key_variables[1] + '#' + key_variables[1]
+    ratio_urls = []
+    ratio_urls.append(url_for_ratios_consolidated)
+    ratio_urls.append(url_for_ratios)
+    ratios = get_ratios(ratio_urls)
+    if ratios is None:        
         debug_dump("Ratio Error:- Could not get the ratio debt to equity. ", i_company_info)
-        return None
-
+        dump_url(url_for_ratios_consolidated)
+        dump_url(url_for_ratios)
+        return None    
     company_details = [i_company_info[0], i_company_info[1]] # Security Code, Market Cap
     encoding = 'ascii'
     action = 'ignore'
-    company_details.append(debt_to_equity.encode(encoding, action).replace(',', ''))
-    company_details.append(RoCE.encode(encoding, action).replace(',', ''))
-    company_details.append(RoNW.encode(encoding, action).replace(',', ''))
-    company_details.append(operating_profit_per_share.encode(encoding, action).replace(',', '')) 
+    company_details.append(ratios['debt_to_equity'].encode(encoding, action).replace(',', '')) #debt_to_equity
+    company_details.append(ratios['RoCE'].encode(encoding, action).replace(',', '')) #RoCE
+    company_details.append(ratios['RoNW'].encode(encoding, action).replace(',', '')) #RoNW
+    company_details.append(ratios['operating_profit_per_share'].encode(encoding, action).replace(',', '')) #operating_profit_per_share
     company_details.append( i_company_info[2]) 
     return company_details
 
@@ -99,10 +123,16 @@ def read_json(i_json):
         return None
     companies_data = json.load(open(i_json))  
     print 'Total Companies\t',len(companies_data)    
-    threadpool = ThreadPool(8)
-    results = threadpool.map(get_mc, companies_data)
-    threadpool.close()
-    threadpool.join()    
+    if single_thread == True:
+        results = []
+        for company_data in companies_data:
+            results.append(get_mc(company_data))
+    else:
+        threadpool = ThreadPool(8)
+        results = threadpool.map(get_mc, companies_data)
+        threadpool.close()
+        threadpool.join()    
+
     print_dump_array(results, i_json)
     
 if __name__ == '__main__':
