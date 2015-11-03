@@ -71,24 +71,34 @@ def get_ratios(ratio_urls):
             if ratios is not None:
                 break
     return ratios
-    
-def get_mc(i_company_info):
-    
+
+def get_company_names_for_url(search_keywords):
     url = 'http://www.moneycontrol.com/stocks/cptmarket/compsearchnew.php'
     data = {
         'search_data' : '',
         'cid' : '',
         'mbsearch_str' : '',
         'topsearch_type' : '1',
-        'search_str': i_company_info[0]
+        'search_str': ''
     }
-    html = gps.get_html_data(url, params=data)    
-    while html is None:
-        if len(i_company_info) == 4:
-            data['search_str'] = i_company_info[3]
+    for keyword in search_keywords:
+        data['search_str'] = keyword
         html = gps.get_html_data(url, params=data)
-    soup = BeautifulSoup(html, 'lxml')
-    standalone = soup.find(attrs={'class':'home act'})
+        soup = BeautifulSoup(html, 'lxml')
+        standalone = soup.find(attrs={'class':'home act'})
+        if standalone is not None:
+            break
+    if standalone is None:
+        return None
+    return standalone
+    
+    
+def get_mc(i_company_info):
+    search_keywords = [i_company_info[0]]
+    if len(i_company_info) == 4:
+        search_keywords.append(i_company_info[3]) 
+        
+    standalone = get_company_names_for_url(search_keywords)
     if standalone is None:    
         debug_dump("HTML Error:- Could not get the monecontrol page. ", i_company_info)
         return None
