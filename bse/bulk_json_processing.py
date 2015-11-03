@@ -1,3 +1,4 @@
+#standard
 import subprocess
 import sys
 from multiprocessing import Pool as ProcessPool
@@ -13,9 +14,5 @@ if __name__ == "__main__":
     files = subprocess.check_output(["ls", sys.argv[1] + "*.json"])
     for file in files:
         subprocess.call(["D:/Python27/python.exe ./mc.py", file])
-    '''pool = ProcessPool(8)
-    pool.map(get_data, files)
-    pool.close()
-    pool.join()
-    '''
+
     
