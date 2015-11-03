@@ -12,6 +12,7 @@ import get_post_services as gps
 
 def print_dump_array(i_array, i_input_json_name):
     column_header = ['Security_Code', 'Market_Cap', 'Debt_to_Equity', 'RoCE', 'RoNW', 'Operating_Profit_per_share', 'Secutity_Id']
+    i_input_json_name = i_input_json_name.replace('\\','/')
     path_split = i_input_json_name.split('/')
     ouput_file_name = "/".join(path_split[:-1]) + "/csv/" + path_split[-1] + '.csv'    
     fp = open(ouput_file_name, 'w')

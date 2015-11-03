@@ -45,3 +45,5 @@ bse/bse.pyc
 *.pyc
 bse/log/error.log
 bse/log/failure.json
+bse/testdata/2015-11-03__12_29_32.048000.json
+bse/testdata/csv/2015-11-03__12_29_32.048000.json.csv

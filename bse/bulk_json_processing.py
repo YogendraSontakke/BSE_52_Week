@@ -13,6 +13,4 @@ if __name__ == "__main__":
         exit(-1)
     files = subprocess.check_output(["ls", sys.argv[1] + "*.json"])
     for file in files:
-        subprocess.call(["D:/Python27/python.exe ./mc.py", file])
-
-    
+        subprocess.call(["D:/Python27/python.exe ./mc.py", file])    
