@@ -30,7 +30,7 @@ def check_if_good(elems):
         return False
     if RoCE == '--':
         pass
-    if float(RoCE) < 10.0:
+    elif float(RoCE) < 10.0:
         print "RoCE :-", RoCE
         return False
     return True
