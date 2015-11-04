@@ -11,20 +11,27 @@ from bs4 import BeautifulSoup
 import get_post_services as gps
 
 # Debug Flags : Start
-debug = True
+debug = False
 single_thread = False    
 # Debug Flags : End
 
 def check_if_good(elems):
-    debt_to_equity = elems[3]
-    RoCE = elems[4]
+    debt_to_equity = elems[2]
+    RoCE = elems[3]
     Operating_Profit_per_share = elems[5]
     
-    if Operating_Profit_per_share < 0:
+    if float(Operating_Profit_per_share) < 0:
+        print "Operating_Profit_per_share :-", Operating_Profit_per_share
         return False
-    if debt_to_equity > 0.5:
+    if debt_to_equity == '--':
+        pass
+    elif float(debt_to_equity) > 0.5:
+        print "debt_to_equity :-", debt_to_equity
         return False
-    if RoCE < 10.0:
+    if RoCE == '--':
+        pass
+    if float(RoCE) < 10.0:
+        print "RoCE :-", RoCE
         return False
     return True
 
