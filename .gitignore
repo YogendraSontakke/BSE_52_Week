@@ -50,3 +50,4 @@ bse/testdata/csv/2015-11-03__12_29_32.048000.json.csv
 bse/log/_error.log
 bse/log/_failure.json
 bse/log/link.txt
+bse/log/missied_companies.log

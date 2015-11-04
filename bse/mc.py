@@ -15,17 +15,36 @@ debug = True
 single_thread = False    
 # Debug Flags : End
 
+def check_if_good(elems):
+    debt_to_equity = elems[3]
+    RoCE = elems[4]
+    Operating_Profit_per_share = elems[5]
+    
+    if Operating_Profit_per_share < 0:
+        return False
+    if debt_to_equity > 0.5:
+        return False
+    if RoCE < 10.0:
+        return False
+    return True
+
 def print_dump_array(i_array, i_input_json_name):
     column_header = ['Security_Code', 'Market_Cap', 'Debt_to_Equity', 'RoCE', 'RoNW', 'Operating_Profit_per_share', 'Secutity_Id']
     i_input_json_name = i_input_json_name.replace('\\','/')
     path_split = i_input_json_name.split('/')
-    ouput_file_name = "/".join(path_split[:-1]) + "/csv/" + path_split[-1] + '.csv'    
+    ouput_file_name = "/".join(path_split[:-1]) + "/csv/" + path_split[-1] + '.csv'
+    ouput_file_name_filtered = "/".join(path_split[:-1]) + "/csv/" + path_split[-1] + '_filtered.csv'
     fp = open(ouput_file_name, 'w')
+    fp_filtered = open(ouput_file_name_filtered, 'w')    
     fp.write(", ".join(column_header) + '\n')
+    fp_filtered.write(", ".join(column_header) + '\n')
     for elems in i_array:        
         if elems is not None:
             fp.write(", ".join(elems) + '\n')
+            if True == check_if_good(elems):
+                fp_filtered.write(", ".join(elems) + '\n')
     fp.close()
+    fp_filtered.close()
 
 def find_elem_in_soup(soup_for_ratios, iText):
     elements = [e for e in soup_for_ratios.find_all('td',attrs={'class':'det'}) if e.text == iText]    
@@ -38,6 +57,9 @@ def debug_dump(error_text, i_company_info):
         fp = open("./log/error.log", 'a')        
         fp.write( error_text +"\t" + " ".join(i_company_info) + "\n" )
         fp.close()
+        fp2 = open("./log/missied_companies.log", 'a')
+        fp2.write( " ".join(i_company_info) + "\n" )
+        fp2.close()
 
 def dump_url(url):
     if True == debug:
