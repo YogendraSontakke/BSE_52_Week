@@ -33,6 +33,11 @@ def combine_company_json(json_daily_folder):
         fp.close()
         combined_company = combined_company + data_array
     return combined_company
+
+def combine_and_process_json(json_daily_folder, json_consolidated_folder):
+    combined_company = combine_company_json(json_daily_folder)
+    json_file = process_combine(combined_company, json_consolidated_folder)
+    mc.read_json(json_file) # creates csv    
     
 def main():
     if len(sys.argv) != 3:
@@ -41,9 +46,7 @@ def main():
     del sys.argv[0]
     json_consolidated_folder = sys.argv.pop()
     json_daily_folder = sys.argv.pop()    
-    combined_company = combine_company_json(json_daily_folder)
-    json_file = process_combine(combined_company, json_consolidated_folder)
-    mc.read_json(json_file) # creates csv
-    
+    combine_and_process_json(json_daily_folder, json_consolidated_folder)
+
 if __name__ == '__main__':
     main()

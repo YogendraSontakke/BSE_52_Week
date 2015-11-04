@@ -29,7 +29,7 @@ def write_output(i_sorted_security_code_vs_market_cap_and_name, output_json_fold
     fp.close()
     return json_file
     
-def main(output_json_folder):
+def get_todays_high_data(output_json_folder):
     data = bse.data_52_week_high()
     security_codes_vs_data = get_security_code_vs_data_dict(data)
     
@@ -49,16 +49,19 @@ def main(output_json_folder):
     json_file = write_output(sorted_security_code_vs_market_cap_and_name, output_json_folder)    
     mc.read_json(json_file) # creates csv
 
-if __name__ == '__main__':
+def main():
     if len(sys.argv) != 2:
         print "Usage: get_data_for_companies.py <output_json_folder>"
         exit(-1)
     start = datetime.datetime.now()
     del sys.argv[0]
-    main(sys.argv.pop())
+    get_todays_high_data(sys.argv.pop())
     end = datetime.datetime.now()
     print end-start
 
+    
+if __name__ == '__main__':
+    main()
     
 '''
 def get_company_data(i_security_id_and_code):    
