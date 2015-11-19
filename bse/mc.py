@@ -11,7 +11,7 @@ from bs4 import BeautifulSoup
 import get_post_services as gps
 
 # Debug Flags : Start
-debug = False
+debug = True
 single_thread = False    
 # Debug Flags : End
 
