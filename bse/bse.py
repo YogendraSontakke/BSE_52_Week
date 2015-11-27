@@ -42,7 +42,8 @@ def get_market_cap_and_name(i_security_code):
     
     if headers['Referer'] == '':
         print 'Referer Missing :', i_security_code
-        return [i_security_code, '0', 'Referer Missing // Not Found']
+        headers['Referer'] = 'http://www.bseindia.com'
+        #return [i_security_code, '0', 'Referer Missing // Not Found']
     
     html = get_post_services.get_html_data(url, params=data, headers=headers)
     while html is None:
