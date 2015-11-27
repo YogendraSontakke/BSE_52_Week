@@ -87,8 +87,8 @@ def get_requester_url(i_security_code):
             html = get_post_services.get_html_data(url, params=data)    
         soup = BeautifulSoup(html, 'lxml')
         tag = soup.find('a')
-        
-    return tag['href']    
+
+    return tag['href'].encode('utf-8')    
 
 def get_viewstate_and_eventvalidation(i_html):
     '''
@@ -142,3 +142,10 @@ def post_common_data():
         'ctl00$ContentPlaceHolder1$ddlIndx':'S&P BSE SENSEX'
     }
     return data
+
+def unicode_url_test():
+    i_sec = 533316
+    print get_market_cap_and_name(i_sec)    
+    
+if __name__ == '__main__':
+    unicode_url_test()
