@@ -46,10 +46,10 @@ def print_dump_array(i_array, i_input_json_name):
     fp.write(", ".join(column_header) + '\n')
     fp_filtered.write(", ".join(column_header) + '\n')
     for elems in i_array:        
-        if elems is not None:
-            fp.write(", ".join(elems) + '\n')
+        if elems is not None:            
+            fp.write(", ".join(elems).encode('utf8') + '\n')
             if True == check_if_good(elems):
-                fp_filtered.write(", ".join(elems) + '\n')
+                fp_filtered.write(", ".join(elems).encode('utf8') + '\n')
     fp.close()
     fp_filtered.close()
 
