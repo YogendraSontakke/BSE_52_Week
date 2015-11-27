@@ -38,9 +38,10 @@ def get_market_cap_and_name(i_security_code):
         'X-Requested-With' : 'XMLHttpRequest',
         'Referer' : ''
     }
-    headers['Referer'] = get_requester_url(i_security_code)
-    
+    headers['Referer'] = get_requester_url(i_security_code)       
+    referer_missing = False
     if headers['Referer'] == '':
+        referer_missing = True
         print 'Referer Missing :', i_security_code
         headers['Referer'] = 'http://www.bseindia.com'
         #return [i_security_code, '0', 'Referer Missing // Not Found']
@@ -49,8 +50,10 @@ def get_market_cap_and_name(i_security_code):
     while html is None:
         html = get_post_services.get_html_data(url, params=data, headers=headers)
     soup = BeautifulSoup(html, 'lxml')    
-    
-    return [i_security_code, soup.find(id='ehd6')['value'].replace(',','').replace('-','0'), headers['Referer'].split('/')[4]]
+    if referer_missing == False:
+        return [i_security_code, soup.find(id='ehd6')['value'].replace(',','').replace('-','0'), headers['Referer'].split('/')[4]]
+    else:
+        return [i_security_code, soup.find(id='ehd6')['value'].replace(',','').replace('-','0'), i_security_code]
 
 def get_52_week_high_html():
     #52 week high html
@@ -150,6 +153,8 @@ def post_common_data():
 
 def referer_none_test():
     i_sec = 539468
+    print get_market_cap_and_name(i_sec)        
+    i_sec = 539446
     print get_market_cap_and_name(i_sec)        
     
 def unicode_url_test():
